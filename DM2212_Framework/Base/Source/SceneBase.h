@@ -48,15 +48,13 @@ public:
 		GEO_TEXT,
 		GEO_BALL,
 		GEO_CUBE,
-		GEO_SHIP, //Done
-		GEO_ASTEROID, //Done
-		GEO_ASTEROID2, //Done
-		GEO_ENEMY, //Done
-		GEO_ONEUP, //Done
+
 		GEO_BG, //Done
-		GEO_BOSS, //Done
-		GEO_MENU, //WIP
-		GEO_GAMEOVER,//WIP
+		GEO_FEMALE,
+		GEO_MALE,
+		GEO_CASHIER,
+		GEO_SUPPLIER,
+
 		NUM_GEOMETRY,
 	};
 

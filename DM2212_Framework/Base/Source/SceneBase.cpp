@@ -108,49 +108,24 @@ void SceneBase::Init()
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 	meshList[GEO_TEXT]->material.kAmbient.Set(1, 0, 0);
-
-	meshList[GEO_SHIP] = MeshBuilder::GenerateQuad("ship", Color(1, 1, 1), 1.f);
-	meshList[GEO_SHIP]->textureID = LoadTGA("Image//ship.tga");
-
-	meshList[GEO_ASTEROID] = MeshBuilder::GenerateQuad("asteroid", Color(1, 1, 1), 1.f);
-	meshList[GEO_ASTEROID]->textureID = LoadTGA("Image//asteroids2.tga");
-
-	meshList[GEO_ASTEROID2] = MeshBuilder::GenerateQuad("larger asteroid", Color(1, 1, 1), 1.f);
-	meshList[GEO_ASTEROID2]->textureID = LoadTGA("Image//asteroids.tga");
-
-	meshList[GEO_ENEMY] = MeshBuilder::GenerateQuad("enemy ship", Color(1, 1, 1), 1.f);
-	meshList[GEO_ENEMY]->textureID = LoadTGA("Image//enemy.tga");
-
+	
+	// Render Background
 	meshList[GEO_BG] = MeshBuilder::GenerateQuad("background", Color(1,1,1), 1.f);
-	meshList[GEO_BG]->textureID = LoadTGA("Image//bg.tga");
+	meshList[GEO_BG]->textureID = LoadTGA("Image//background.tga");
 
-	meshList[GEO_MENU] = MeshBuilder::GenerateQuad("menu background", Color(1,1,1), 1.f);
-	meshList[GEO_MENU]->textureID = LoadTGA("Image//menu.tga");
+	// Render Cashier
+	meshList[GEO_CASHIER] = MeshBuilder::GenerateQuad("Cashier", Color(1, 1, 1), 1.f);
+	meshList[GEO_CASHIER]->textureID = LoadTGA("Image//cashier.tga");
 
-	meshList[GEO_GAMEOVER] = MeshBuilder::GenerateQuad("gameover background", Color(1,1,1), 1.f);
-	meshList[GEO_GAMEOVER]->textureID = LoadTGA("Image//gameover.tga");
+	// Render Female
 
-	meshList[GEO_BOSS] = MeshBuilder::GenerateQuad("boss", Color(1, 1, 1), 1.f);
-	meshList[GEO_BOSS]->textureID = LoadTGA("Image//boss.tga");
-
-	meshList[GEO_ONEUP] = MeshBuilder::GenerateQuad("oneup", Color(1, 1, 1), 1.f);
-	meshList[GEO_ONEUP]->textureID = LoadTGA("Image//oneup.tga");
+	// Render Male
 
 	bLightEnabled = false;
 }
 
 void SceneBase::Update(double dt)
 {
-	//Keyboard Section
-	if(Application::IsKeyPressed('1'))
-		glEnable(GL_CULL_FACE);
-	if(Application::IsKeyPressed('2'))
-		glDisable(GL_CULL_FACE);
-	if(Application::IsKeyPressed('3'))
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	if(Application::IsKeyPressed('4'))
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	
 	fps = (float)(1.f / dt);
 }
 void SceneBase::RenderText(Mesh* mesh, std::string text, Color color)

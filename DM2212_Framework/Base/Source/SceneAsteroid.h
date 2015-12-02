@@ -37,7 +37,7 @@ protected:
 	float m_worldWidth;
 	float m_worldHeight;
 
-	GameObject *m_ship;
+	GameObject *m_cashier;
 
 	Vector3 m_force;
 

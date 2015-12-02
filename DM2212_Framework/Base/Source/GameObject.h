@@ -10,14 +10,11 @@ struct GameObject
 		GO_NONE = 0,
 		GO_BALL,
 		GO_CUBE,
-		GO_ASTEROID, //Smaller Asteroid
-		GO_ASTEROID2, //Larger Asteroid
-		GO_SHIP,
-		GO_BULLET,
-		GO_MISSILE,
-		GO_ENEMY,
-		GO_ONEUP, // Health Regen
-		GO_BOSS,
+
+		GO_CUSTOMER,
+		GO_CASHIER,
+		GO_SUPPLIER,
+
 		GO_TOTAL, //must be last
 	};
 
