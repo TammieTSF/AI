@@ -45,10 +45,10 @@
     <ClCompile Include="Source\GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SceneAsteroid.cpp">
+    <ClCompile Include="Source\SceneBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SceneBase.cpp">
+    <ClCompile Include="Source\SceneAsteroid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -95,10 +95,10 @@
     <ClInclude Include="Source\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SceneAsteroid.h">
+    <ClInclude Include="Source\SceneBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SceneBase.h">
+    <ClInclude Include="Source\SceneAsteroid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

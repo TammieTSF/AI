@@ -1,5 +1,20 @@
-﻿Build started 12/2/2015 3:31:24 PM.
+﻿Build started 12/3/2015 12:23:42 PM.
+     1>Project "C:\Users\Tammie\Desktop\AI1\DM2212_Framework\Common\Common.vcxproj" on node 2 (Rebuild target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _VARIADIC_MAX=10 /D WIN32 /D _DEBUG /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source\MatrixStack.cpp Source\Mtx44.cpp Source\timer.cpp Source\Vector3.cpp
+         Vector3.cpp
+         timer.cpp
+         Mtx44.cpp
+         MatrixStack.cpp
+         Generating Code...
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\Lib.exe /OUT:"C:\Users\Tammie\Desktop\AI1\DM2212_Framework\Debug\Common.lib" /NOLOGO Debug\MatrixStack.obj
+         Debug\Mtx44.obj
+         Debug\timer.obj
+         Debug\Vector3.obj
+         Common.vcxproj -> C:\Users\Tammie\Desktop\AI1\DM2212_Framework\Debug\Common.lib
+     1>Done Building Project "C:\Users\Tammie\Desktop\AI1\DM2212_Framework\Common\Common.vcxproj" (Rebuild target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.04
+Time Elapsed 00:00:02.76

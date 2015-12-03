@@ -118,8 +118,16 @@ void SceneBase::Init()
 	meshList[GEO_CASHIER]->textureID = LoadTGA("Image//cashier.tga");
 
 	// Render Female
+	meshList[GEO_FEMALE] = MeshBuilder::GenerateQuad("Female", Color(1, 1, 1), 1.f);
+	meshList[GEO_FEMALE]->textureID = LoadTGA("Image//female.tga");
 
 	// Render Male
+	meshList[GEO_MALE] = MeshBuilder::GenerateQuad("Male", Color(1, 1, 1), 1.f);
+	meshList[GEO_MALE]->textureID = LoadTGA("Image//male.tga");
+
+	// Render Supplier
+	meshList[GEO_SUPPLIER] = MeshBuilder::GenerateQuad("Supplier", Color(1, 1, 1), 1.f);
+	meshList[GEO_SUPPLIER]->textureID = LoadTGA("Image//supplier.tga");
 
 	bLightEnabled = false;
 }
