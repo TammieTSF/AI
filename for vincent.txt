@@ -1,0 +1,143 @@
+Create constants and variables (after ÅgDoExitÅh function )
+int state1; // Current state values
+int state2;
+const int PATROL = 0; // Possible state definition
+const int CHASE = 1;
+const int ACTIVE = 2;
+const int REST = 3;
+const float playerSpeed = 0.01f;
+const float enemySpeed = 0.0105f;
+const float playerRadius = 0.25f;
+const float enemyRadius = 0.1f;
+const float proximity = 0.4f;
+int wpIndex;
+bool arrived;
+MyVector playerPos, enemyPos;
+vector <MyVector> wayPoints, intrusionPoints;
+MyVector nextPoint;
+float probability;
+long counter;
+long counterLimit;
+
+Add to ÅgInitSimulationÅh function
+srand( ( unsigned ) time( NULL ) );
+probability = 50.0;
+counter = 0;
+counterLimit = 200;
+float offset = 2.0;
+float scale = 1.2f;
+wayPoints.push_back( MyVector( -offset, -offset ) );
+wayPoints.push_back( MyVector( -offset, offset));
+wayPoints.push_back( MyVector( offset, offset));
+wayPoints.push_back( MyVector( offset, -offset));
+intrusionPoints.push_back( MyVector( -scale*offset, -0.3f*offset ) );
+intrusionPoints.push_back( MyVector( -scale*offset, 0.3f*offset ) );
+intrusionPoints.push_back( MyVector( scale*offset, 0.3f*offset ) );
+intrusionPoints.push_back( MyVector( scale*offset, -0.3f*offset ) );
+int rindex = RandomInteger(1, 3);
+playerPos.SetPosition (wayPoints[ 0 ].GetX(), wayPoints[ 0 ].GetY() );
+enemyPos.SetPosition( intrusionPoints[ rindex ].GetX(), intrusionPoints[ rindex ].GetY() );
+state1 = PATROL;
+state2 = ACTIVE;
+wpIndex = 1;
+arrived = false;
+
+Add to ÅgRenderObjectsÅh function
+glPushMatrix();
+glTranslatef( 0.0f, 0.0f, -10.0f );
+// Player
+RenderFillCircle( playerPos.GetX(), playerPos.GetY(), playerRadius, 0.0f, 0.0f, 1.0f );
+RenderCircle( playerPos.GetX(), playerPos.GetY(), playerRadius + proximity, 0.1f, 0.1f, 0.1f );
+// Enemy
+RenderFillCircle( enemyPos.GetX(), enemyPos.GetY(), enemyRadius, 0.0f, 1.0f, 0.0f );
+// Waypoints
+for (unsigned int i = 0; i < wayPoints.size(); i++ )
+RenderCircle(wayPoints[i].GetX(), wayPoints[i].GetY(), playerRadius + 0.1f, 1.0f, 0.0f, 0.0f);
+glPopMatrix();
+
+Add to ÅgRunSimulationÅh function
+if ( state2 == REST )
+{
+if ( counter == counterLimit )
+{
+counter = 0;
+state2 = ACTIVE;
+}
+else
+counter++;
+}
+if ( state1 == PATROL && state2 == ACTIVE )
+{
+nextPoint = wayPoints[wpIndex];
+MyVector v = (playerPos - nextPoint).Normalize();
+float distance = GetDistance(playerPos.GetX(),playerPos.GetY(),nextPoint.GetX(),nextPoint.GetY());
+if (distance < playerSpeed)
+{
+playerPos = nextPoint;
+arrived = true;
+}
+else
+playerPos = playerPos + v*playerSpeed;
+if ( arrived )
+{
+if (wpIndex == wayPoints.size() - 1)
+wpIndex = 0;
+else
+{
+if ( wpIndex == 0 )
+{
+int randomNumber = RandomInteger(1, 100);
+if (randomNumber <= probability)
+{
+state2 = REST;
+counter = 0;
+}
+}
+wpIndex++;
+}
+arrived = false;
+}
+}
+bool enemyDetected = Detect( playerPos, enemyPos, playerRadius+proximity , enemyRadius );
+switch ( state1 )
+{
+case PATROL: if ( enemyDetected )
+state1 = CHASE;
+break;
+case CHASE : if ( !enemyDetected )
+state1 = PATROL;
+break;
+}
+
+
+Add Text Status
+Åc
+FT_Set_Pixel_Sizes( face, 0, 50 );
+string stateString = ""; 
+MyVector direction;
+switch (state1)
+{
+case PATROL: stateString = "PATROL";
+break;
+case CHASE: stateString = "CHASE";
+direction = (playerPos - enemyPos).Normalize();
+enemyPos = enemyPos + direction * enemySpeed;
+playerPos = playerPos + direction * playerSpeed;
+break;
+}
+// Render text status
+RenderText( "State1 : ", face, -0.95f, 0.925f, 0.55f, 0.55f );
+RenderText( stateString , face, -0.8f, 0.925f, 0.55f, 0.55f );
+RenderText("Player - Blue Enemy - Green", face, -0.6f, 0.925f, 0.55f, 0.55f);
+string s = "Counter : " + itos( counter );
+RenderText( s , face, 0.25f, 0.925f, 0.55f, 0.55f );
+s = " State2 :";
+if (state2 == REST)
+s += "REST";
+else
+s += "ACTIVE";
+RenderText( s, face, 0.55f, 0.925f, 0.55f, 0.55f );
+glfwSwapBuffers( window );
+Åc 
+
+
