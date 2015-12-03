@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 #include "SceneKinematics.h"
-#include "SceneAsteroid.h"
+#include "SceneAI .h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
@@ -125,7 +125,7 @@ void Application::Init()
 void Application::Run()
 {
 	//Main Loop
-	Scene *scene = new SceneAsteroid();
+	Scene *scene = new SceneAI();
 	scene->Init();
 
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame

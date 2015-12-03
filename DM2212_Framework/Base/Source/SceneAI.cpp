@@ -1,54 +1,65 @@
-#include "SceneAsteroid.h"
+#include "SceneAI .h"
 #include "GL\glew.h"
 #include "Application.h"
 #include <sstream>
 
-SceneAsteroid::SceneAsteroid()
+struct MyVector
+{
+	float x, y;
+	MyVector() :x(0), y(0){}
+	MyVector(float x, float y) :x(x), y(y){}
+	void SetPosition(float _x, float _y){ x = _x; y = _y; }
+	float GetX(){ return x; }
+	float GetY(){ return y; }
+	float Magnitude(){ return sqrt(x*x + y*y); }
+	MyVector Normalize(){ float length = Magnitude(); return MyVector(x / length, y / length); }
+	MyVector operator + (MyVector u){ return MyVector(x + u.x, y + u.y); }
+	MyVector operator - (MyVector u){ return MyVector(u.x - x, u.y - y); }
+	MyVector operator += (MyVector u){ return MyVector(x + u.x, y + u.y); }
+	MyVector operator ~(){ return MyVector(-x, -y); }
+	MyVector operator *(float scale){ return MyVector(x*scale, y*scale); }
+	float operator * (MyVector  v){ return  x*v.x + y*v.y; }
+};
+
+
+SceneAI::SceneAI()
 {
 }
 
-SceneAsteroid::~SceneAsteroid()
+SceneAI::~SceneAI()
 {
 }
 
-int SceneAsteroid::RandomInteger(int lowerLimit, int upperLimit)
-{
-	return rand() % (upperLimit - lowerLimit + 1) + lowerLimit;
-}
-
-void SceneAsteroid::Init()
+void SceneAI::Init()
 {
 	SceneBase::Init();
+
 	
 	m_speed = 1.f;
 
 	Math::InitRNG();
 
-	//Construct 100 GameObject with type GO_CUSTOMER and add into m_goList
+	//Construct 100 GameObject with type GO_ASTEROID and add into m_goList
 	for (int a = 0; a < 100; a++)
 	{
-		m_goList.push_back(new GameObject(GameObject::GO_CUSTOMER));
+		//m_goList.push_back(new GameObject(GameObject::GO_CUSTOMER));
 	}
 
-	//Intialise variables
-	objectcount = 1; // Cashier is included. Total amount of objects on screen
-	CGender = GENDER_FEMALE;
-	Females = 0;
-	Males = 0;
-	Gprobability = 50.0f;
-	TotalCustomers = 0;
-	srand((unsigned)time(NULL));
-	
+	//Intialise m_lives, m_score
+	m_lives = 10;
+	m_score = 0;
+	objectcount = 1; // objectcount equal to 1 because player ship is included.
+
+	//Construct Cashier
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
-	//Construct Cashier
 	m_cashier = new GameObject(GameObject::GO_CASHIER);
 	m_cashier->active = true;
 	m_cashier->scale.Set(6, 6, 6);
-	m_cashier->pos.Set(70, 80, m_cashier->pos.z);
-} // like InitSimulation
+	m_cashier->pos.Set(m_worldWidth * 0.5f, m_worldHeight * 0.71f, m_cashier->pos.z);
+}
 
-GameObject* SceneAsteroid::FetchGO()
+GameObject* SceneAI::FetchGO()
 {
 	//Fetch game objects
 	float z = 0; //Set z as zero
@@ -65,7 +76,7 @@ GameObject* SceneAsteroid::FetchGO()
 	//Restock the list when m_goList runs out of object
 	for (int a = 0; a < 10; a++)
 	{
-		m_goList.push_back(new GameObject(GameObject::GO_CUSTOMER));
+		//m_goList.push_back(new GameObject(GameObject::GO_CUSTOMER));
 	}
 
 	GameObject *go = m_goList.back();
@@ -73,30 +84,36 @@ GameObject* SceneAsteroid::FetchGO()
 	return go;
 }
 
-void SceneAsteroid::Update(double dt) // works like RunSimulation
+void SceneAI::Update(double dt)
 {
 	//SceneBase::Update(dt);
-
-	//do update for customer/supplier movement here.
-	RandomIndex = RandomInteger(1, 100);
-	if (RandomIndex <= Gprobability)
-	{
-		Females++;
-		CGender = GENDER_FEMALE;
-	}
-	else
-	{
-		Males++;
-		CGender = GENDER_MALE;
-	}
-
 }
 
-void SceneAsteroid::RenderGO(GameObject *go)
+int CGender; // Customer's Gender
+const int FEMALE = 0; // State = Female
+const int MALE = 1; // State = Male
+int Females; // No. of females customers
+int Males; // No. of male customers
+float probability; 
+int RandomIndex;
+const float CustomerSpeed = 0.0275f;
+const float SupplierSpeed = 0.0275f;
+const float CustomerRadius = 0.2f;
+const float SupplierRadius = 0.2f;
+const float proximity = 0.4f; // ??
+int wayPointIndex;
+bool arrived;
+MyVector CustomerPos, SupplierPos;
+std::vector<MyVector>wayPoints, intrusionPoints;
+std::vector<MyVector> stack;
+
+
+void SceneAI::RenderGO(GameObject *go)
 {
 	switch (go->type)
 	{
 	case GameObject::GO_CASHIER:
+	{
 		// Render Cashier
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
@@ -104,42 +121,27 @@ void SceneAsteroid::RenderGO(GameObject *go)
 		RenderMesh(meshList[GEO_CASHIER], false);
 		modelStack.PopMatrix();
 		break;
-	
+	}
 	case GameObject::GO_CUSTOMER:
+	{
 		switch (CGender)
 		{
-		case GENDER_FEMALE:
+		case FEMALE:
 			// RenderMesh = GEO_FEMALE
-			modelStack.PushMatrix();
-			modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-			modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-			RenderMesh(meshList[GEO_FEMALE], false);
-			modelStack.PopMatrix();
 			break;
 
-		case GENDER_MALE:
+		case MALE:
 			// RenderMesh = GEO_MALE
-			modelStack.PushMatrix();
-			modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-			modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-			RenderMesh(meshList[GEO_MALE], false);
-			modelStack.PopMatrix();
 			break;
 		}
 		break;
-	
-	case GameObject::GO_SUPPLIER:
-		//RenderMesh = GEO_SUPPLIER
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_SUPPLIER], false);
-		modelStack.PopMatrix();
-		break;
+	}
+
 	}
 }
 
-void SceneAsteroid::Render()
+
+void SceneAI::Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -159,11 +161,14 @@ void SceneAsteroid::Render()
 		camera.target.x, camera.target.y, camera.target.z,
 		camera.up.x, camera.up.y, camera.up.z
 		);
+
 	// Model matrix : an identity matrix (model will be at the origin)
 	modelStack.LoadIdentity();
 
+
+	//render the background image
 	modelStack.PushMatrix();
-	modelStack.Translate(m_worldWidth*0.5f, m_worldHeight*0.5f, -5);
+	modelStack.Translate(m_worldWidth*0.5f, m_worldHeight*0.425f, -5);
 	modelStack.Scale(m_worldWidth, m_worldHeight, 1);
 	RenderMesh(meshList[GEO_BG], false);
 	modelStack.PopMatrix();
@@ -177,9 +182,12 @@ void SceneAsteroid::Render()
 		}
 	}
 
+
+	//Render cashier
 	RenderGO(m_cashier);
 
 	//On screen text
+
 	/*if (m_score == 0 || m_score < 100)
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "Level 1", Color(1, 0, 0), 3, 0, 57);
@@ -197,14 +205,17 @@ void SceneAsteroid::Render()
 	ss6.precision(5);
 	ss6 << "Lives: " << m_lives;
 	RenderTextOnScreen(meshList[GEO_TEXT], ss6.str(), Color(0, 1, 1), 3, 0, 55);
+	*/
 
-	std::ostringstream ss5;
-	ss5.precision(5);
-	ss5 << "Score: " << m_score;
-	RenderTextOnScreen(meshList[GEO_TEXT], ss5.str(), Color(0, 1, 1), 3, 16, 55);*/
+	//FPS
+	std::ostringstream T_fps;
+	T_fps << "FPS: " << fps;
+	RenderTextOnScreen(meshList[GEO_TEXT], T_fps.str(), Color(0, 1, 1), 3, 16, 55);
+
 }
 
-void SceneAsteroid::Exit()
+
+void SceneAI::Exit()
 {
 	SceneBase::Exit();
 	//Cleanup GameObjects
