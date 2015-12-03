@@ -19,7 +19,6 @@ int SceneAI::RandomInteger(int lowerLimit, int upperLimit)
 void SceneAI::Init()
 {
 	SceneBase::Init();
-
 	
 	m_speed = 1.f;
 

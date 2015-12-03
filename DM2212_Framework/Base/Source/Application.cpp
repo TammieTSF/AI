@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 #include "SceneKinematics.h"
-#include "SceneAI .h"
+#include "SceneAI.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
