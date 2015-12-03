@@ -20,6 +20,48 @@ int SceneAI::RandomInteger(int lowerLimit, int upperLimit)
 	return rand() % (upperLimit - lowerLimit + 1) + lowerLimit;
 }
 
+float SceneAI::GetDistance(float x1, float y1, float x2, float y2)
+{
+	return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+}
+
+// Within range
+bool SceneAI::Detect(MyVector pos1, MyVector pos2, float radius1, float radius2)
+{
+	bool detect = false;
+	float totalRadius = radius1 + radius2;
+	float distance = GetDistance(pos1.x, pos1.y, pos2.x, pos2.y);
+	if (distance <= totalRadius) detect = true;
+	return detect;
+}
+
+void SceneAI::RenderCircle(GLfloat x, GLfloat y, GLfloat radius, GLfloat r, GLfloat g, GLfloat b)
+{
+	int n = 360;
+	glColor3f(r, g, b);
+	glBegin(GL_POINTS);
+	for (int i = 0; i <= n; i++)
+	{
+		float angle = (float)(i * (2.0 * 3.14159 / n));
+		glVertex2f(x + radius * cos(angle), y + radius * sin(angle));
+	}
+	glEnd();
+}
+
+void SceneAI::RenderFillCircle(GLfloat x, GLfloat y, GLfloat radius, GLfloat r, GLfloat g, GLfloat b)
+{
+	int n = 360;
+	glColor3f(r, g, b);
+	glBegin(GL_TRIANGLE_FAN);
+	glVertex2f(x, y);
+	for (int i = 0; i <= n; i++)
+	{
+		float angle = (float)(i * (2.0 * 3.14159 / n));
+		glVertex2f(x + radius * cos(angle), y + radius * sin(angle));
+	}
+	glEnd();
+}
+
 void SceneAI::Init()
 {
 	SceneBase::Init();
@@ -39,10 +81,33 @@ void SceneAI::Init()
 	objectcount = 1; // Cashier is included. Total amount of objects on screen
 	Females = 0;
 	Males = 0;
-	Gprobability = 50.0f;
 	TotalCustomers = 0;
 	srand((unsigned)time(NULL));
 	
+	// States
+	CGender = GENDER_FEMALE;
+	EState = ENTER_TRUE;
+
+	//Probabilities
+	Gprobability = 50.0f;
+	Eprobability = 50.0f;
+
+	//Waypoints
+	float offset = 2.0;
+	wayPoints.push_back(MyVector(-offset, 20));
+	wayPoints.push_back(MyVector(-offset, offset));
+	wayPoints.push_back(MyVector(offset, offset));
+	wayPoints.push_back(MyVector(offset, -offset));
+	intrusionPoints.push_back(MyVector(-1.2f*offset, 0.3f*offset)); //Scaling factor for outide the waypoint to detect circles
+	intrusionPoints.push_back(MyVector(-1.2f*offset, 0.3f*offset));
+	intrusionPoints.push_back(MyVector(1.2f*offset, 0.3f*offset));
+	intrusionPoints.push_back(MyVector(1.2f*offset, -0.3f*offset));
+	CustomerPos.SetPosition(wayPoints[0].GetX(), wayPoints[0].GetY());
+	//int randomIndex = RandomInteger(1, 3);
+	//Temp.SetPosition(intrusionPoints[randomIndex].GetX(), intrusionPoints[randomIndex].GetY());
+	wayPointIndex = 1;
+	arrived = false;
+
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
 	
@@ -120,6 +185,152 @@ void SceneAI::Update(double dt)
 	dt *= m_speed;
 	m_force.SetZero();
 
+	if (RandomIndex < Eprobability)
+		EState = ENTER_TRUE;
+	else
+		EState = ENTER_FALSE;
+
+	if (EState == ENTER_TRUE)
+		CState = CUSTOMER_ENTER;
+
+	switch (CState)
+	{
+	case CUSTOMER_ENTER:
+		//CODES FOR CUSTOMER ENTER
+		CState = CUSTOMER_REQUEST;
+		break;
+
+	case CUSTOMER_REQUEST:
+		if (desiredItem < 0)
+		{
+			RState = CASHIER_RECOMMEND;
+		}
+		else if (desiredItem > 1)
+		{
+			if (RandomIndex < Bprobability)
+				CState = CUSTOMER_BARGAIN;
+			else
+				CState = CUSTOMER_LEAVE;
+		}
+		break;
+
+	case CUSTOMER_BARGAIN:
+		if (RandomIndex < Bprobability)
+		{
+			BState = BARGAIN_ACCEPT;
+			CState = CUSTOMER_LEAVE;
+		}
+		else
+		{
+			BState = BARGAIN_REFUSE;
+			CState = CUSTOMER_LEAVE;
+		}
+		break;
+
+	case CUSTOMER_LEAVE:
+		//CODES FOR EXIT STORE
+		break;
+	}
+
+	switch (cState)
+	{
+	case CASHIER_GREET:
+		if (CGender == GENDER_FEMALE)
+			GState = GREET_FEMALE;
+		else if (CGender == GENDER_MALE)
+			GState = GREET_MALE;
+		break;
+
+	case CASHIER_RECOMMEND:
+		if (RandomIndex < Rprobability)
+		{
+			RState = RECOMMEND_ACCEPT;
+			CState = CUSTOMER_LEAVE;
+		}
+
+		else
+		{
+			RState = RECOMMEND_REFUSE;
+			CState = CUSTOMER_LEAVE;
+		}
+		break;
+	}
+
+	static float LimitCustomers = 0;
+	if (GameObject::GO_CUSTOMER)
+	{
+		if (LimitCustomers < 1)
+		{
+			GameObject *customers = FetchGO();
+			customers->type = GameObject::GO_CUSTOMER;
+			customers->active = true;
+			customers->scale.Set(6, 6, 6);
+			customers->pos.Set(CustomerPos.GetX(), CustomerPos.GetY(), customers->pos.z);
+
+			if (EState == ENTER_TRUE)
+			{
+				if (stack.size() == 0)
+					nextPoint = wayPoints[wayPointIndex];
+				else
+					nextPoint = stack[stack.size() - 1];
+
+				MyVector direction = (CustomerPos - nextPoint).Normalize();
+				float distance = GetDistance(CustomerPos.GetX(), CustomerPos.GetY(), nextPoint.GetX(), nextPoint.GetY());
+				if (distance < CustomerSpeed)
+				{
+					CustomerPos = nextPoint;
+					arrived = true;
+				}
+				else
+					CustomerPos = CustomerPos + direction * CustomerSpeed;
+				//customers->vel.Set(CustomerSpeed, 0, 0);
+
+				if (arrived)
+				{
+					if (stack.size() == 0)
+					{
+						if (wayPointIndex == wayPoints.size() - 1)
+							wayPointIndex = 0;
+						else
+							wayPointIndex++;
+					}
+					else
+						stack.clear();
+
+					arrived = false;
+				}
+			}
+
+			else if (EState == ENTER_FALSE)
+			{
+				customers->vel.Set(CustomerSpeed, 0, 0);
+			}
+			LimitCustomers++;
+		}
+	}
+
+	for (std::vector<GameObject *>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject *go = (GameObject *)*it;
+
+		if (go->active)
+		{
+			// Makes objects move
+			//go->pos += go->vel * dt;
+			go->pos += CustomerSpeed * dt;
+
+			// Render customer false if out of screen
+			if (go->type == GameObject::GO_CUSTOMER)
+			{
+				if (go->pos.x > m_worldWidth)
+				{
+					go->active = false;
+					LimitCustomers--;
+				}
+			}
+		}
+	}
+
 	//update the rotation of the clock hand
 	clock_rotate_counter +=1;
 
@@ -156,42 +367,6 @@ void SceneAI::Update(double dt)
 		chip.max = true;
 	else
 		chip.max = false;
-
-
-	static float LimitCustomers = 0;
-	if (GameObject::GO_CUSTOMER)
-	{
-		if (LimitCustomers < 1)
-		{
-			GameObject *customers = FetchGO();
-			customers->type = GameObject::GO_CUSTOMER;
-			customers->scale.Set(6, 6, 6);
-			customers->pos.Set(0, 0, 0);
-			customers->vel.Set(0, 0, 0);
-
-			LimitCustomers++;
-		}
-	}
-
-	for (std::vector<GameObject *>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
-	{
-		GameObject *go = (GameObject *)*it;
-
-		if (go->active)
-		{
-			// Makes objects move
-			go->pos += go->vel * dt;
-
-			// Render customer false if out of screen
-			if (go->type == GameObject::GO_CUSTOMER)
-			{
-				if (go->pos.x > m_worldWidth)
-				{
-					go->active = false;
-				}
-			}
-		}
-	}
 }
 
 void SceneAI::RenderGO(GameObject *go)

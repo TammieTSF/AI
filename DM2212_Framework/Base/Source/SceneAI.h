@@ -2,7 +2,16 @@
 #define SCENE_SCENEAI_H
 
 #include "GameObject.h"
+#include <stdlib.h>
+#include <windows.h>
+#include <time.h>
+#include <math.h>
+#include <string>
+#include <ostream>
+#include <sstream>
 #include <vector>
+#include <GL/glew.h>
+#include <GLFw/glfw3.h>
 #include "SceneBase.h"
 
 class SceneAI : public SceneBase
@@ -107,6 +116,10 @@ public:
 	GameObject* FetchGO();
 
 	int RandomInteger(int lowerLimit, int upperLimit);
+	float GetDistance(float x1, float y1, float x2, float y2);
+	bool Detect(MyVector pos1, MyVector pos2, float radius1, float radius2);
+	void RenderCircle(GLfloat x, GLfloat y, GLfloat radius, GLfloat r, GLfloat g, GLfloat b);
+	void RenderFillCircle(GLfloat x, GLfloat y, GLfloat radius, GLfloat r, GLfloat g, GLfloat b);
 
 protected:
 
@@ -142,26 +155,45 @@ protected:
 	int objectcount;
 
 	//Variables
-	int CGender; // Customer's Gender
-	int Females; // No. of females customers
-	int Males; // No. of male customers
-	int RandomIndex; // Randomize Integers
+	int Females;		// No. of females customers
+	int Males;			// No. of male customers
 	int TotalCustomers; // Total amount of customers
+	int Enter;			// No. of people entered
+	int NoEnter;		// No. of people who didn't enter shop
+	int TotalEnters;	// Total amount of people who entered 
+	int RandomIndex;	// Randomize Integers
 	int wayPointIndex;
+	int desiredItem;
 
+	//States
+	int CGender;	// Customer's Gender
+	int CState;		// Customer state
+	int EState;		// Enter state
+	int BState;		// Bargain state
+	int RState;		// Recommend state
+	int cState;		// Cashier state
+	int GState;		// Greet State
+
+	//Probability
 	float Gprobability; // Gender probability
 	float Eprobability; // Enter shop probability
+	float Rprobability; // Recommend probability
+	float Bprobability; // Bargain probability
 
-	const float CustomerSpeed = 0.0275f;
+	//Speed, Radius, etc.
+	const float CustomerSpeed = 10.f;
 	const float SupplierSpeed = 0.0275f;
+	const float tempspd = 0.0275f;
 	const float CustomerRadius = 0.2f;
 	const float SupplierRadius = 0.2f;
+	const float temprad = 0.2f;
 	const float proximity = 0.4f; // proximity between supplier and waypoints/ proximity between customer and cashier
 
 	bool arrived;
 
-	MyVector CustomerPos, SupplierPos;
+	MyVector CustomerPos, SupplierPos, Temp;
 	std::vector<MyVector>wayPoints, intrusionPoints;
+	MyVector nextPoint; //Go to next point
 	std::vector<MyVector> stack;
 
 };
