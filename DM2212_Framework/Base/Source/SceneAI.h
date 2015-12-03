@@ -104,6 +104,9 @@ protected:
 	float m_worldWidth;
 	float m_worldHeight;
 
+	//for clock
+	float clock_rotate;
+	float clock_rotate_counter;
 	GameObject *m_cashier;
 
 	Vector3 m_force;

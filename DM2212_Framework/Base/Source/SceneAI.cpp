@@ -3,7 +3,9 @@
 #include "Application.h"
 #include <sstream>
 
-SceneAI::SceneAI()
+SceneAI::SceneAI():
+clock_rotate(0),
+clock_rotate_counter(0)
 {
 }
 
@@ -45,7 +47,7 @@ void SceneAI::Init()
 	m_cashier = new GameObject(GameObject::GO_CASHIER);
 	m_cashier->active = true;
 	m_cashier->scale.Set(6, 6, 6);
-	m_cashier->pos.Set(70, 80, m_cashier->pos.z);
+	m_cashier->pos.Set(m_worldWidth * 0.5f, m_worldHeight * .71f, m_cashier->pos.z);
 }
 
 GameObject* SceneAI::FetchGO()
@@ -92,6 +94,19 @@ void SceneAI::Update(double dt)
 	//do update for customer/supplier movement here.
 	dt *= m_speed;
 	m_force.SetZero();
+
+	//update the rotation of the clock hand
+	clock_rotate_counter +=1;
+
+	if (clock_rotate_counter > 60)
+	{
+		clock_rotate -= 360 / 12;
+		clock_rotate_counter = 0;
+	}
+	
+	//reset the clock
+	if (clock_rotate < -360)
+		clock_rotate = 0;
 
 	static float LimitCustomers = 0;
 	if (GameObject::GO_CUSTOMER)
@@ -208,6 +223,22 @@ void SceneAI::Render()
 	RenderMesh(meshList[GEO_BG], false);
 	modelStack.PopMatrix();
 
+	//render the clock base
+	modelStack.PushMatrix();
+	modelStack.Translate(m_worldWidth*0.9f, m_worldHeight*0.078f, -4);
+	modelStack.Scale(15,15,1);
+	RenderMesh(meshList[GEO_CLOCK_BASE], false);
+	modelStack.PopMatrix();
+
+	//render the clock hand
+	modelStack.PushMatrix();
+	modelStack.Translate(m_worldWidth*0.9f, m_worldHeight*0.078f, -3);
+	modelStack.Scale(15,15,1);
+	modelStack.Rotate(clock_rotate,0,0,1);
+	RenderMesh(meshList[GEO_CLOCK_HAND], false);
+	modelStack.PopMatrix();
+
+
 	for (std::vector<GameObject *>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject *go = (GameObject *)*it;
@@ -245,7 +276,7 @@ void SceneAI::Render()
 	//FPS
 	std::ostringstream T_fps;
 	T_fps << "FPS: " << fps;
-	RenderTextOnScreen(meshList[GEO_TEXT], T_fps.str(), Color(0, 1, 1), 3, 16, 55);
+	RenderTextOnScreen(meshList[GEO_TEXT], T_fps.str(), Color(1, 1, 1), 2, m_worldWidth * .44f, m_worldHeight * 0.57f);
 
 }
 

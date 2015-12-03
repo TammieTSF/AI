@@ -20,7 +20,7 @@ SceneBase::~SceneBase()
 void SceneBase::Init()
 {
 	// Black background
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
@@ -128,6 +128,14 @@ void SceneBase::Init()
 	// Render Supplier
 	meshList[GEO_SUPPLIER] = MeshBuilder::GenerateQuad("Supplier", Color(1, 1, 1), 1.f);
 	meshList[GEO_SUPPLIER]->textureID = LoadTGA("Image//supplier.tga");
+
+	//Render clock Base
+	meshList[GEO_CLOCK_BASE] = MeshBuilder::GenerateQuad("clock base", Color(1, 1, 1), 1.f);
+	meshList[GEO_CLOCK_BASE]->textureID = LoadTGA("Image//clock_base.tga");
+
+	//Render clock hand
+	meshList[GEO_CLOCK_HAND] = MeshBuilder::GenerateQuad("clock hand", Color(1, 1, 1), 1.f);
+	meshList[GEO_CLOCK_HAND]->textureID = LoadTGA("Image//clock_hand.tga");
 
 	bLightEnabled = false;
 }

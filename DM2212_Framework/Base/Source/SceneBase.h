@@ -49,12 +49,15 @@ public:
 		GEO_BALL,
 		GEO_CUBE,
 
-		GEO_BG, //Done
+		GEO_BG, 
 		GEO_FEMALE,
 		GEO_MALE,
 		GEO_CASHIER,
 		GEO_SUPPLIER,
 
+		//clock (day night)
+		GEO_CLOCK_BASE,
+		GEO_CLOCK_HAND,
 		NUM_GEOMETRY,
 	};
 
