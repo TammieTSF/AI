@@ -1,25 +1,8 @@
-#include "SceneAI .h"
+#include "SceneAI.h"
 #include "GL\glew.h"
 #include "Application.h"
 #include <sstream>
 
-struct MyVector
-{
-	float x, y;
-	MyVector() :x(0), y(0){}
-	MyVector(float x, float y) :x(x), y(y){}
-	void SetPosition(float _x, float _y){ x = _x; y = _y; }
-	float GetX(){ return x; }
-	float GetY(){ return y; }
-	float Magnitude(){ return sqrt(x*x + y*y); }
-	MyVector Normalize(){ float length = Magnitude(); return MyVector(x / length, y / length); }
-	MyVector operator + (MyVector u){ return MyVector(x + u.x, y + u.y); }
-	MyVector operator - (MyVector u){ return MyVector(u.x - x, u.y - y); }
-	MyVector operator += (MyVector u){ return MyVector(x + u.x, y + u.y); }
-	MyVector operator ~(){ return MyVector(-x, -y); }
-	MyVector operator *(float scale){ return MyVector(x*scale, y*scale); }
-	float operator * (MyVector  v){ return  x*v.x + y*v.y; }
-};
 
 
 SceneAI::SceneAI()
@@ -28,6 +11,11 @@ SceneAI::SceneAI()
 
 SceneAI::~SceneAI()
 {
+}
+
+int SceneAI::RandomInteger(int lowerLimit, int upperLimit)
+{
+	return rand() % (upperLimit - lowerLimit + 1) + lowerLimit;
 }
 
 void SceneAI::Init()
@@ -39,25 +27,28 @@ void SceneAI::Init()
 
 	Math::InitRNG();
 
-	//Construct 100 GameObject with type GO_ASTEROID and add into m_goList
+	//Construct 100 GameObject with type GO_CUSTOMER and add into m_goList
 	for (int a = 0; a < 100; a++)
 	{
 		//m_goList.push_back(new GameObject(GameObject::GO_CUSTOMER));
 	}
 
-	//Intialise m_lives, m_score
-	m_lives = 10;
-	m_score = 0;
-	objectcount = 1; // objectcount equal to 1 because player ship is included.
-
-	//Construct Cashier
+	//Intialise variables
+	objectcount = 1; // Cashier is included. Total amount of objects on screen
+	Females = 0;
+	Males = 0;
+	Gprobability = 50.0f;
+	TotalCustomers = 0;
+	srand((unsigned)time(NULL));
+	
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
+	//Construct Cashier
 	m_cashier = new GameObject(GameObject::GO_CASHIER);
 	m_cashier->active = true;
 	m_cashier->scale.Set(6, 6, 6);
-	m_cashier->pos.Set(m_worldWidth * 0.5f, m_worldHeight * 0.71f, m_cashier->pos.z);
-}
+	m_cashier->pos.Set(70, 80, m_cashier->pos.z);
+} // like InitSimulation
 
 GameObject* SceneAI::FetchGO()
 {
@@ -68,6 +59,18 @@ GameObject* SceneAI::FetchGO()
 		GameObject *go = (GameObject *)*it;
 		if (go->active == false)
 		{
+			RandomIndex = RandomInteger(1, 100);
+			if (RandomIndex <= Gprobability)
+			{
+				Females++;
+				CGender = GENDER_FEMALE;
+			}
+			else
+			{
+				Males++;
+				CGender = GENDER_MALE;
+			}
+
 			go->pos.Set(go->pos.x, go->pos.y, z / 100);//Each time the loop runs, the z axis is increasing.
 			go->active = true;
 			return go;
@@ -76,7 +79,7 @@ GameObject* SceneAI::FetchGO()
 	//Restock the list when m_goList runs out of object
 	for (int a = 0; a < 10; a++)
 	{
-		//m_goList.push_back(new GameObject(GameObject::GO_CUSTOMER));
+		m_goList.push_back(new GameObject(GameObject::GO_CUSTOMER));
 	}
 
 	GameObject *go = m_goList.back();
@@ -86,27 +89,26 @@ GameObject* SceneAI::FetchGO()
 
 void SceneAI::Update(double dt)
 {
-	//SceneBase::Update(dt);
+	SceneBase::Update(dt);
+
+	//do update for customer/supplier movement here.
+	dt *= m_speed;
+	m_force.SetZero();
+
+	static float LimitCustomers = 0;
+	if (GameObject::GO_CUSTOMER)
+	{
+		if (LimitCustomers < 1)
+		{
+			GameObject *customers = FetchGO();
+			customers->type = GameObject::GO_CUSTOMER;
+			customers->scale.Set(6, 6, 6);
+			customers->pos.Set(0, 0, 0);
+			customers->vel.Set(0, 0, 0);
+		}
+	}
+
 }
-
-int CGender; // Customer's Gender
-const int FEMALE = 0; // State = Female
-const int MALE = 1; // State = Male
-int Females; // No. of females customers
-int Males; // No. of male customers
-float probability; 
-int RandomIndex;
-const float CustomerSpeed = 0.0275f;
-const float SupplierSpeed = 0.0275f;
-const float CustomerRadius = 0.2f;
-const float SupplierRadius = 0.2f;
-const float proximity = 0.4f; // ??
-int wayPointIndex;
-bool arrived;
-MyVector CustomerPos, SupplierPos;
-std::vector<MyVector>wayPoints, intrusionPoints;
-std::vector<MyVector> stack;
-
 
 void SceneAI::RenderGO(GameObject *go)
 {
@@ -128,13 +130,33 @@ void SceneAI::RenderGO(GameObject *go)
 		{
 		case FEMALE:
 			// RenderMesh = GEO_FEMALE
+			modelStack.PushMatrix();
+			modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+			modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+			RenderMesh(meshList[GEO_FEMALE], false);
+			modelStack.PopMatrix();
 			break;
 
 		case MALE:
 			// RenderMesh = GEO_MALE
+			modelStack.PushMatrix();
+			modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+			modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+			RenderMesh(meshList[GEO_MALE], false);
+			modelStack.PopMatrix();
 			break;
 		}
 		break;
+	
+	case GameObject::GO_SUPPLIER:
+		//RenderMesh = GEO_SUPPLIER
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_SUPPLIER], false);
+		modelStack.PopMatrix();
+		break;
+	}
 	}
 
 	}
