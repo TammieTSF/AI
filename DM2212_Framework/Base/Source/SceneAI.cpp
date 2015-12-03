@@ -3,9 +3,11 @@
 #include "Application.h"
 #include <sstream>
 
-SceneAI::SceneAI():
+SceneAI::SceneAI() :
 clock_rotate(0),
-clock_rotate_counter(0)
+clock_rotate_counter(0),
+currency(1000),
+randomBuy_no(0)
 {
 }
 
@@ -25,6 +27,7 @@ void SceneAI::Init()
 	m_speed = 1.f;
 
 	Math::InitRNG();
+
 
 	//Construct 100 GameObject with type GO_CUSTOMER and add into m_goList
 	for (int a = 0; a < 100; a++)
@@ -48,6 +51,28 @@ void SceneAI::Init()
 	m_cashier->active = true;
 	m_cashier->scale.Set(6, 6, 6);
 	m_cashier->pos.Set(m_worldWidth * 0.5f, m_worldHeight * .71f, m_cashier->pos.z);
+
+	//initialise bubblegum variables
+	bubblegum.cost = 20;                // buy price
+	bubblegum.max = false;
+	bubblegum.no_item = 0;
+	bubblegum.price = 40;               // sell price
+
+	//initialise water variables
+	water.cost = 5;                     // buy price
+	water.max = false;
+	water.no_item = 0;
+	water.price = 10;                   // sell price
+
+	//initialise chip variables
+	chip.cost = 15;                     // buy price
+	chip.max = false;
+	chip.no_item = 0;
+	chip.price = 30;                    // sell price
+
+	//initialiise the day vaiables
+	day.no_Days = 0;
+	day.day_State = 0;
 }
 
 GameObject* SceneAI::FetchGO()
@@ -104,9 +129,34 @@ void SceneAI::Update(double dt)
 		clock_rotate_counter = 0;
 	}
 	
-	//reset the clock
+	//reset the clock, increase no. of days by 1
 	if (clock_rotate < -360)
+	{
 		clock_rotate = 0;
+		day.no_Days++;
+	}
+		
+
+	//item limit max. 10
+	
+	//bubblegum
+	if (bubblegum.no_item == 10)
+		bubblegum.max = true;
+	else
+		bubblegum.max = false;
+
+	//water
+	if (water.no_item == 10)
+		water.max = true;
+	else
+		water.max = false;
+
+	//chip
+	if (chip.no_item == 10)
+		chip.max = true;
+	else
+		chip.max = false;
+
 
 	static float LimitCustomers = 0;
 	if (GameObject::GO_CUSTOMER)
@@ -267,16 +317,41 @@ void SceneAI::Render()
 		RenderTextOnScreen(meshList[GEO_TEXT], "Level 3", Color(1, 0, 1), 3, 0, 57);
 	}*/
 
-	/*std::ostringstream ss6;
-	ss6.precision(5);
-	ss6 << "Lives: " << m_lives;
-	RenderTextOnScreen(meshList[GEO_TEXT], ss6.str(), Color(0, 1, 1), 3, 0, 55);
-	*/
+	//DAYS
+	std::ostringstream N_days;
+	N_days.precision(5);
+	N_days << "Number of Days passed: " << day.no_Days;
+	RenderTextOnScreen(meshList[GEO_TEXT], N_days.str(), Color(1, 1, 1), 2, m_worldWidth * 0.02f,m_worldHeight * 0.57f);
+
+	//Currency
+	std::ostringstream N_Currency;
+	N_Currency.precision(5);
+	N_Currency << "$$$: " << currency;
+	RenderTextOnScreen(meshList[GEO_TEXT], N_Currency.str(), Color(1, 1, 1), 2, m_worldWidth * 0.02f, m_worldHeight * 0.07f);
+
+	//Bubblegum
+	std::ostringstream N_Bubblegum;
+	N_Bubblegum.precision(5);
+	N_Bubblegum << "Bubblegum: " << bubblegum.no_item << " /10" ;
+	RenderTextOnScreen(meshList[GEO_TEXT], N_Bubblegum.str(), Color(1, 1, 1), 2, m_worldWidth * 0.02f, m_worldHeight * 0.05f);
+
+	//water
+	std::ostringstream N_Water;
+	N_Water.precision(5);
+	N_Water << "Water: " << water.no_item << " /10";
+	RenderTextOnScreen(meshList[GEO_TEXT], N_Water.str(), Color(1, 1, 1), 2, m_worldWidth * 0.02f, m_worldHeight * 0.03f);
+
+	//chip
+	std::ostringstream N_Chip;
+	N_Chip.precision(5);
+	N_Chip << "Chip: " << chip.no_item << " /10";
+	RenderTextOnScreen(meshList[GEO_TEXT], N_Chip.str(), Color(1, 1, 1), 2, m_worldWidth * 0.02f, m_worldHeight * 0.01f);
 
 	//FPS
 	std::ostringstream T_fps;
 	T_fps << "FPS: " << fps;
 	RenderTextOnScreen(meshList[GEO_TEXT], T_fps.str(), Color(1, 1, 1), 2, m_worldWidth * .44f, m_worldHeight * 0.57f);
+
 
 }
 

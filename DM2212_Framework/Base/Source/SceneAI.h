@@ -30,6 +30,19 @@ class SceneAI : public SceneBase
 		float operator * (MyVector  v){ return  x*v.x + y*v.y; }
 	};
 
+	struct Item
+	{
+		int no_item;
+		int cost; //cost price (buy from supplier)
+		int price; //selling price (sell to customer)
+		bool max;
+	};
+
+	struct Day
+	{
+		int no_Days;
+		int day_State;
+	};
 	enum CUSTOMER
 	{
 		// Gender States, probability based
@@ -107,6 +120,20 @@ protected:
 	//for clock
 	float clock_rotate;
 	float clock_rotate_counter;
+
+	//for No. of days
+	Day day;
+
+	//currency
+	int currency;
+
+	//inventory /items
+	Item bubblegum;
+	Item water;
+	Item chip;
+
+	int randomBuy_no;
+
 	GameObject *m_cashier;
 
 	Vector3 m_force;
