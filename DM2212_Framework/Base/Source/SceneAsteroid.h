@@ -117,11 +117,16 @@ protected:
 	bool GameOver;
 	bool Win;
 
-	//Customer Variables
+	//Customer & Supplier Variables
 	int CGender; // Customer's Gender
 	int Females; // No. of females customers
 	int Males; // No. of male customers
 	float Gprobability; //Gender Probability
+	const float CustomerSpeed = 0.0275f;
+	//const float SupplierSpeed = 0.0275f;
+	const float CustomerRadius = 0.2f;
+	//const float SupplierRadius = 0.2f;
+	const float proximity = 0.4f; // ??
 	int RandomIndex; // Randomize Integers
 	int TotalCustomers; // Total amount of customers
 	int wayPointIndex;
@@ -129,6 +134,7 @@ protected:
 	MyVector CustomerPos, SupplierPos;
 	std::vector<MyVector>wayPoints, intrusionPoints;
 	std::vector<MyVector> stack;
+
 };
 
 #endif

@@ -51,8 +51,7 @@ void SceneAsteroid::Init()
 	m_cashier->active = true;
 	m_cashier->scale.Set(6, 6, 6);
 	m_cashier->pos.Set(70, 80, m_cashier->pos.z);
-
-}
+} // like InitSimulation
 
 GameObject* SceneAsteroid::FetchGO()
 {
@@ -79,19 +78,23 @@ GameObject* SceneAsteroid::FetchGO()
 	return go;
 }
 
-void SceneAsteroid::Update(double dt)
+void SceneAsteroid::Update(double dt) // works like RunSimulation
 {
 	//SceneBase::Update(dt);
 
 	//do update for customer/supplier movement here.
-	
+	RandomIndex = RandomInteger(1, 100);
+	if (RandomIndex <= Gprobability)
+	{
+		Females++;
+		CGender = GENDER_FEMALE;
+	}
+	else
+	{
+		Males++;
+		CGender = GENDER_MALE;
+	}
 }
-
-const float CustomerSpeed = 0.0275f;
-const float SupplierSpeed = 0.0275f;
-const float CustomerRadius = 0.2f;
-const float SupplierRadius = 0.2f;
-const float proximity = 0.4f; // ??
 
 void SceneAsteroid::RenderGO(GameObject *go)
 {
@@ -129,7 +132,6 @@ void SceneAsteroid::RenderGO(GameObject *go)
 		}
 		break;
 	
-
 	case GameObject::GO_SUPPLIER:
 		//RenderMesh = GEO_SUPPLIER
 		modelStack.PushMatrix();
@@ -140,7 +142,6 @@ void SceneAsteroid::RenderGO(GameObject *go)
 		break;
 	}
 }
-
 
 void SceneAsteroid::Render()
 {
@@ -206,7 +207,6 @@ void SceneAsteroid::Render()
 	ss5 << "Score: " << m_score;
 	RenderTextOnScreen(meshList[GEO_TEXT], ss5.str(), Color(0, 1, 1), 3, 16, 55);*/
 }
-
 
 void SceneAsteroid::Exit()
 {

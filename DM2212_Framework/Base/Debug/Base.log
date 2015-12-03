@@ -1,18 +1,10 @@
-﻿Build started 12/3/2015 12:23:45 PM.
-     1>Project "C:\Users\Tammie\Desktop\AI1\DM2212_Framework\Base\Base.vcxproj" on node 2 (Rebuild target(s)).
+﻿Build started 12/3/2015 12:32:26 PM.
+     1>Project "C:\Users\Tammie\Desktop\AI1\DM2212_Framework\Base\Base.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\Users\Tammie\Desktop\AI1\DM2212_Framework\/Common/Source /IC:\Users\Tammie\Desktop\AI1\DM2212_Framework\/glew/include /IC:\Users\Tammie\Desktop\AI1\DM2212_Framework\/glfw/include /ZI /nologo /W3 /WX- /Od /Oy- /D _VARIADIC_MAX=10 /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source\Application.cpp Source\Camera.cpp Source\GameObject.cpp Source\LoadOBJ.cpp Source\LoadTGA.cpp Source\main.cpp Source\Mesh.cpp Source\MeshBuilder.cpp Source\SceneAsteroid.cpp Source\SceneBase.cpp Source\shader.cpp Source\Utility.cpp
-         Utility.cpp
-         shader.cpp
-         SceneBase.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\Users\Tammie\Desktop\AI1\DM2212_Framework\/Common/Source /IC:\Users\Tammie\Desktop\AI1\DM2212_Framework\/glew/include /IC:\Users\Tammie\Desktop\AI1\DM2212_Framework\/glfw/include /ZI /nologo /W3 /WX- /Od /Oy- /D _VARIADIC_MAX=10 /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source\Application.cpp Source\SceneAsteroid.cpp
          SceneAsteroid.cpp
-         MeshBuilder.cpp
-         Mesh.cpp
-         main.cpp
-         LoadTGA.cpp
-         LoadOBJ.cpp
-         GameObject.cpp
-         Camera.cpp
+         Generating Code...
+         Compiling...
          Application.cpp
          Generating Code...
        Link:
@@ -31,8 +23,8 @@
      1>Application.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
      1>LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
          Base.vcxproj -> C:\Users\Tammie\Desktop\AI1\DM2212_Framework\Debug\Base.exe
-     1>Done Building Project "C:\Users\Tammie\Desktop\AI1\DM2212_Framework\Base\Base.vcxproj" (Rebuild target(s)).
+     1>Done Building Project "C:\Users\Tammie\Desktop\AI1\DM2212_Framework\Base\Base.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:08.84
+Time Elapsed 00:00:03.35
