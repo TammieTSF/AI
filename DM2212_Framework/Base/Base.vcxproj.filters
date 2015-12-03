@@ -48,7 +48,7 @@
     <ClCompile Include="Source\SceneBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SceneAsteroid.cpp">
+    <ClCompile Include="Source\SceneAI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,7 +98,7 @@
     <ClInclude Include="Source\SceneBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SceneAsteroid.h">
+    <ClInclude Include="Source\SceneAI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

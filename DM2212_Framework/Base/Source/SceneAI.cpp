@@ -3,8 +3,6 @@
 #include "Application.h"
 #include <sstream>
 
-
-
 SceneAI::SceneAI()
 {
 }
@@ -30,7 +28,7 @@ void SceneAI::Init()
 	//Construct 100 GameObject with type GO_CUSTOMER and add into m_goList
 	for (int a = 0; a < 100; a++)
 	{
-		//m_goList.push_back(new GameObject(GameObject::GO_CUSTOMER));
+		m_goList.push_back(new GameObject(GameObject::GO_CUSTOMER));
 	}
 
 	//Intialise variables
@@ -43,12 +41,13 @@ void SceneAI::Init()
 	
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
+	
 	//Construct Cashier
 	m_cashier = new GameObject(GameObject::GO_CASHIER);
 	m_cashier->active = true;
 	m_cashier->scale.Set(6, 6, 6);
 	m_cashier->pos.Set(70, 80, m_cashier->pos.z);
-} // like InitSimulation
+}
 
 GameObject* SceneAI::FetchGO()
 {
@@ -105,9 +104,30 @@ void SceneAI::Update(double dt)
 			customers->scale.Set(6, 6, 6);
 			customers->pos.Set(0, 0, 0);
 			customers->vel.Set(0, 0, 0);
+
+			LimitCustomers++;
 		}
 	}
 
+	for (std::vector<GameObject *>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject *go = (GameObject *)*it;
+
+		if (go->active)
+		{
+			// Makes objects move
+			go->pos += go->vel * dt;
+
+			// Render customer false if out of screen
+			if (go->type == GameObject::GO_CUSTOMER)
+			{
+				if (go->pos.x > m_worldWidth)
+				{
+					go->active = false;
+				}
+			}
+		}
+	}
 }
 
 void SceneAI::RenderGO(GameObject *go)
@@ -115,7 +135,6 @@ void SceneAI::RenderGO(GameObject *go)
 	switch (go->type)
 	{
 	case GameObject::GO_CASHIER:
-	{
 		// Render Cashier
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
@@ -123,12 +142,11 @@ void SceneAI::RenderGO(GameObject *go)
 		RenderMesh(meshList[GEO_CASHIER], false);
 		modelStack.PopMatrix();
 		break;
-	}
+
 	case GameObject::GO_CUSTOMER:
-	{
 		switch (CGender)
 		{
-		case FEMALE:
+		case GENDER_FEMALE:
 			// RenderMesh = GEO_FEMALE
 			modelStack.PushMatrix();
 			modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
@@ -137,7 +155,7 @@ void SceneAI::RenderGO(GameObject *go)
 			modelStack.PopMatrix();
 			break;
 
-		case MALE:
+		case GENDER_MALE:
 			// RenderMesh = GEO_MALE
 			modelStack.PushMatrix();
 			modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
@@ -157,11 +175,7 @@ void SceneAI::RenderGO(GameObject *go)
 		modelStack.PopMatrix();
 		break;
 	}
-	}
-
-	}
 }
-
 
 void SceneAI::Render()
 {
@@ -235,7 +249,6 @@ void SceneAI::Render()
 	RenderTextOnScreen(meshList[GEO_TEXT], T_fps.str(), Color(0, 1, 1), 3, 16, 55);
 
 }
-
 
 void SceneAI::Exit()
 {
