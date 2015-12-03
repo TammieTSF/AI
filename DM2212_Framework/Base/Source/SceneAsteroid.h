@@ -42,6 +42,10 @@ class SceneAsteroid : public SceneBase
 		CUSTOMER_LEAVE,
 		CUSTOMER_BARGAIN,
 
+		// Customer Enter Shop states, probability based
+		ENTER_TRUE, 
+		ENTER_FALSE,
+
 		// Recommend states, for when cashier recommends, probability based
 		RECOMMEND_ACCEPT,
 		RECOMMEND_REFUSE,
@@ -89,9 +93,6 @@ public:
 
 	GameObject* FetchGO();
 
-	bool showInfo;
-	void Menu();
-
 	int RandomInteger(int lowerLimit, int upperLimit);
 
 protected:
@@ -108,33 +109,31 @@ protected:
 	Vector3 m_force;
 
 	int m_objectCount;
-	int m_lives;
-	int m_score;
-	int objectcount;
-	int Selection;
-	int Colour;
-	bool StartGame;
-	bool GameOver;
-	bool Win;
 
-	//Customer & Supplier Variables
+	int objectcount;
+
+	//Variables
 	int CGender; // Customer's Gender
 	int Females; // No. of females customers
 	int Males; // No. of male customers
-	float Gprobability; //Gender Probability
-	const float CustomerSpeed = 0.0275f;
-	//const float SupplierSpeed = 0.0275f;
-	const float CustomerRadius = 0.2f;
-	//const float SupplierRadius = 0.2f;
-	const float proximity = 0.4f; // ??
 	int RandomIndex; // Randomize Integers
 	int TotalCustomers; // Total amount of customers
 	int wayPointIndex;
+
+	float Gprobability; // Gender probability
+	float Eprobability; // Enter shop probability
+	
+	const float CustomerSpeed = 0.0275f;
+	const float SupplierSpeed = 0.0275f;
+	const float CustomerRadius = 0.2f;
+	const float SupplierRadius = 0.2f;
+	const float proximity = 0.4f; // proximity between supplier and waypoints/ proximity between customer and cashier
+	
 	bool arrived;
+
 	MyVector CustomerPos, SupplierPos;
 	std::vector<MyVector>wayPoints, intrusionPoints;
 	std::vector<MyVector> stack;
-
 };
 
 #endif

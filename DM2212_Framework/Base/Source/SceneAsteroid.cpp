@@ -19,11 +19,6 @@ int SceneAsteroid::RandomInteger(int lowerLimit, int upperLimit)
 void SceneAsteroid::Init()
 {
 	SceneBase::Init();
-
-	showInfo = false;
-	StartGame = false;
-	GameOver = false;
-	Win = false;
 	
 	m_speed = 1.f;
 
@@ -94,6 +89,7 @@ void SceneAsteroid::Update(double dt) // works like RunSimulation
 		Males++;
 		CGender = GENDER_MALE;
 	}
+
 }
 
 void SceneAsteroid::RenderGO(GameObject *go)
