@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="GameAsset">
+      <UniqueIdentifier>{400ccf5a-f49d-4afe-87d3-9d69b76ee7a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -50,6 +53,12 @@
     </ClCompile>
     <ClCompile Include="Source\SceneAI.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GameAsset\Customer.cpp">
+      <Filter>GameAsset</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GameAsset\Cashier.cpp">
+      <Filter>GameAsset</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +109,12 @@
     </ClInclude>
     <ClInclude Include="Source\SceneAI.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GameAsset\Customer.h">
+      <Filter>GameAsset</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GameAsset\Cashier.h">
+      <Filter>GameAsset</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

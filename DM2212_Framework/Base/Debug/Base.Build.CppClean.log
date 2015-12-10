@@ -8,10 +8,12 @@ c:\users\tammie\desktop\ai\dm2212_framework\base\debug\loadtga.obj
 c:\users\tammie\desktop\ai\dm2212_framework\base\debug\main.obj
 c:\users\tammie\desktop\ai\dm2212_framework\base\debug\mesh.obj
 c:\users\tammie\desktop\ai\dm2212_framework\base\debug\meshbuilder.obj
+c:\users\tammie\desktop\ai\dm2212_framework\base\debug\sceneai.obj
 c:\users\tammie\desktop\ai\dm2212_framework\base\debug\scenebase.obj
 c:\users\tammie\desktop\ai\dm2212_framework\base\debug\shader.obj
 c:\users\tammie\desktop\ai\dm2212_framework\base\debug\utility.obj
-c:\users\tammie\desktop\ai\dm2212_framework\base\debug\sceneai.obj
+c:\users\tammie\desktop\ai\dm2212_framework\base\debug\customer.obj
+c:\users\tammie\desktop\ai\dm2212_framework\base\debug\cashier.obj
 c:\users\tammie\desktop\ai\dm2212_framework\debug\base.exe
 c:\users\tammie\desktop\ai\dm2212_framework\debug\base.pdb
 c:\users\tammie\desktop\ai\dm2212_framework\base\debug\base.tlog\cl.command.1.tlog

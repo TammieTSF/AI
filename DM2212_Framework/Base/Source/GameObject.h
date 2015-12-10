@@ -18,6 +18,7 @@ struct GameObject
 		GO_TOTAL, //must be last
 	};
 
+public:
 	GAMEOBJECT_TYPE type;
 	Vector3 pos;
 	Vector3 vel;
@@ -27,7 +28,8 @@ struct GameObject
 	int health;
 
 	GameObject(GAMEOBJECT_TYPE typeValue = GO_BALL);
-	~GameObject();
+	virtual ~GameObject(); // must be a virtual to handle all the children classes
+	// Always inherit from parent classes, do not inherit from child classes.
 };
 
 #endif

@@ -20,97 +20,36 @@ int SceneAI::RandomInteger(int lowerLimit, int upperLimit)
 	return rand() % (upperLimit - lowerLimit + 1) + lowerLimit;
 }
 
-float SceneAI::GetDistance(float x1, float y1, float x2, float y2)
-{
-	return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-}
-
-// Within range
-bool SceneAI::Detect(MyVector pos1, MyVector pos2, float radius1, float radius2)
-{
-	bool detect = false;
-	float totalRadius = radius1 + radius2;
-	float distance = GetDistance(pos1.x, pos1.y, pos2.x, pos2.y);
-	if (distance <= totalRadius) detect = true;
-	return detect;
-}
-
-void SceneAI::RenderCircle(GLfloat x, GLfloat y, GLfloat radius, GLfloat r, GLfloat g, GLfloat b)
-{
-	int n = 360;
-	glColor3f(r, g, b);
-	glBegin(GL_POINTS);
-	for (int i = 0; i <= n; i++)
-	{
-		float angle = (float)(i * (2.0 * 3.14159 / n));
-		glVertex2f(x + radius * cos(angle), y + radius * sin(angle));
-	}
-	glEnd();
-}
-
-void SceneAI::RenderFillCircle(GLfloat x, GLfloat y, GLfloat radius, GLfloat r, GLfloat g, GLfloat b)
-{
-	int n = 360;
-	glColor3f(r, g, b);
-	glBegin(GL_TRIANGLE_FAN);
-	glVertex2f(x, y);
-	for (int i = 0; i <= n; i++)
-	{
-		float angle = (float)(i * (2.0 * 3.14159 / n));
-		glVertex2f(x + radius * cos(angle), y + radius * sin(angle));
-	}
-	glEnd();
-}
-
 void SceneAI::Init()
 {
 	SceneBase::Init();
-	
+
 	m_speed = 1.f;
 
 	Math::InitRNG();
-
-
-	//Construct 100 GameObject with type GO_CUSTOMER and add into m_goList
-	for (int a = 0; a < 100; a++)
-	{
-		m_goList.push_back(new GameObject(GameObject::GO_CUSTOMER));
-	}
 
 	//Intialise variables
 	objectcount = 1; // Cashier is included. Total amount of objects on screen
 	Females = 0;
 	Males = 0;
 	TotalCustomers = 0;
+	//maletext = false;
+	//femaletext = false;
 	srand((unsigned)time(NULL));
-	
-	// States
-	CGender = GENDER_FEMALE;
-	EState = ENTER_TRUE;
+
+	//Customer
+	Customer* customer = new Customer();
+	customer->setToFemale();
+	customer->SetEnterState();
+	m_goList.push_back(customer);
 
 	//Probabilities
 	Gprobability = 50.0f;
-	Eprobability = 50.0f;
-
-	//Waypoints
-	float offset = 2.0;
-	wayPoints.push_back(MyVector(-offset, 20));
-	wayPoints.push_back(MyVector(-offset, offset));
-	wayPoints.push_back(MyVector(offset, offset));
-	wayPoints.push_back(MyVector(offset, -offset));
-	intrusionPoints.push_back(MyVector(-1.2f*offset, 0.3f*offset)); //Scaling factor for outide the waypoint to detect circles
-	intrusionPoints.push_back(MyVector(-1.2f*offset, 0.3f*offset));
-	intrusionPoints.push_back(MyVector(1.2f*offset, 0.3f*offset));
-	intrusionPoints.push_back(MyVector(1.2f*offset, -0.3f*offset));
-	CustomerPos.SetPosition(wayPoints[0].GetX(), wayPoints[0].GetY());
-	//int randomIndex = RandomInteger(1, 3);
-	//Temp.SetPosition(intrusionPoints[randomIndex].GetX(), intrusionPoints[randomIndex].GetY());
-	wayPointIndex = 1;
-	arrived = false;
+	Iprobability = 40.0f;
 
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
-	
+
 	//Construct Cashier
 	m_cashier = new GameObject(GameObject::GO_CASHIER);
 	m_cashier->active = true;
@@ -120,19 +59,19 @@ void SceneAI::Init()
 	//initialise bubblegum variables
 	bubblegum.cost = 20;                // buy price
 	bubblegum.max = false;
-	bubblegum.no_item = 0;
+	bubblegum.no_item = 10;
 	bubblegum.price = 40;               // sell price
 
 	//initialise water variables
 	water.cost = 5;                     // buy price
 	water.max = false;
-	water.no_item = 0;
+	water.no_item = 10;
 	water.price = 10;                   // sell price
 
 	//initialise chip variables
 	chip.cost = 15;                     // buy price
 	chip.max = false;
-	chip.no_item = 0;
+	chip.no_item = 10;
 	chip.price = 30;                    // sell price
 
 	//initialiise the day vaiables
@@ -149,18 +88,6 @@ GameObject* SceneAI::FetchGO()
 		GameObject *go = (GameObject *)*it;
 		if (go->active == false)
 		{
-			RandomIndex = RandomInteger(1, 100);
-			if (RandomIndex <= Gprobability)
-			{
-				Females++;
-				CGender = GENDER_FEMALE;
-			}
-			else
-			{
-				Males++;
-				CGender = GENDER_MALE;
-			}
-
 			go->pos.Set(go->pos.x, go->pos.y, z / 100);//Each time the loop runs, the z axis is increasing.
 			go->active = true;
 			return go;
@@ -177,179 +104,193 @@ GameObject* SceneAI::FetchGO()
 	return go;
 }
 
+Customer* SceneAI::FetchCustomers()
+{
+	float z = 0; // initialise the z variable
+	for (GameObject* GO : m_goList)
+	{
+		Customer* customer = dynamic_cast<Customer*>(GO);
+		if (customer != NULL)
+		{
+			z++;
+			if (customer->active == false)
+			{
+				RandomIndex = RandomInteger(1, 100);
+				if (RandomIndex <= Gprobability)
+				{
+					Females++;
+					customer->setToFemale(); // it will crash if there is no if(customer != NULL)
+				}
+				else
+				{
+					Males++;
+					customer->setToMale();
+				}
+
+			}
+			customer->pos.Set(customer->pos.x, customer->pos.y, z / 100);//Each time the loop runs, the z axis is increasing.
+			customer->active = true;
+			return customer; // BEST case scenario
+		}
+	}
+
+	for (int a = 0; a < 10; a++)
+	{
+		m_goList.push_back(new GameObject(GameObject::GO_CUSTOMER));
+	}
+
+	Customer* customer = dynamic_cast<Customer*>(m_goList.back());
+	if (customer != NULL)
+	{
+		customer->active = true;
+		return customer; // BEST case scenario
+	}
+	return NULL; // worst case scenario. :D
+}
+
 void SceneAI::Update(double dt)
 {
 	SceneBase::Update(dt);
+	static float LimitCustomers = 0;
 
 	//do update for customer/supplier movement here.
 	dt *= m_speed;
 	m_force.SetZero();
-
-	if (RandomIndex < Eprobability)
-		EState = ENTER_TRUE;
-	else
-		EState = ENTER_FALSE;
-
-	if (EState == ENTER_TRUE)
-		CState = CUSTOMER_ENTER;
-
-	switch (CState)
+	for (GameObject* go : m_goList)
 	{
-	case CUSTOMER_ENTER:
-		//CODES FOR CUSTOMER ENTER
-		CState = CUSTOMER_REQUEST;
-		break;
-
-	case CUSTOMER_REQUEST:
-		if (desiredItem < 0)
+		Customer* customer = dynamic_cast<Customer*>(go);
+		if (customer != NULL)
 		{
-			RState = CASHIER_RECOMMEND;
-		}
-		else if (desiredItem > 1)
-		{
-			if (RandomIndex < Bprobability)
-				CState = CUSTOMER_BARGAIN;
-			else
-				CState = CUSTOMER_LEAVE;
-		}
-		break;
-
-	case CUSTOMER_BARGAIN:
-		if (RandomIndex < Bprobability)
-		{
-			BState = BARGAIN_ACCEPT;
-			CState = CUSTOMER_LEAVE;
-		}
-		else
-		{
-			BState = BARGAIN_REFUSE;
-			CState = CUSTOMER_LEAVE;
-		}
-		break;
-
-	case CUSTOMER_LEAVE:
-		//CODES FOR EXIT STORE
-		break;
-	}
-
-	switch (cState)
-	{
-	case CASHIER_GREET:
-		if (CGender == GENDER_FEMALE)
-			GState = GREET_FEMALE;
-		else if (CGender == GENDER_MALE)
-			GState = GREET_MALE;
-		break;
-
-	case CASHIER_RECOMMEND:
-		if (RandomIndex < Rprobability)
-		{
-			RState = RECOMMEND_ACCEPT;
-			CState = CUSTOMER_LEAVE;
-		}
-
-		else
-		{
-			RState = RECOMMEND_REFUSE;
-			CState = CUSTOMER_LEAVE;
-		}
-		break;
-	}
-
-	static float LimitCustomers = 0;
-	if (GameObject::GO_CUSTOMER)
-	{
-		if (LimitCustomers < 1)
-		{
-			GameObject *customers = FetchGO();
-			customers->type = GameObject::GO_CUSTOMER;
-			customers->active = true;
-			customers->scale.Set(6, 6, 6);
-			customers->pos.Set(CustomerPos.GetX(), CustomerPos.GetY(), customers->pos.z);
-
-			if (EState == ENTER_TRUE)
+			if (GameObject::GO_CUSTOMER)
 			{
-				if (stack.size() == 0)
-					nextPoint = wayPoints[wayPointIndex];
-				else
-					nextPoint = stack[stack.size() - 1];
-
-				MyVector direction = (CustomerPos - nextPoint).Normalize();
-				float distance = GetDistance(CustomerPos.GetX(), CustomerPos.GetY(), nextPoint.GetX(), nextPoint.GetY());
-				if (distance < CustomerSpeed)
+				if (LimitCustomers < 1)
 				{
-					CustomerPos = nextPoint;
-					arrived = true;
-				}
-				else
-					CustomerPos = CustomerPos + direction * CustomerSpeed;
-				//customers->vel.Set(CustomerSpeed, 0, 0);
-
-				if (arrived)
-				{
-					if (stack.size() == 0)
-					{
-						if (wayPointIndex == wayPoints.size() - 1)
-							wayPointIndex = 0;
-						else
-							wayPointIndex++;
-					}
-					else
-						stack.clear();
-
-					arrived = false;
+					GameObject *customers = FetchCustomers();
+					customers->type = GameObject::GO_CUSTOMER;
+					customers->active = true;
+					customers->scale.Set(6, 6, 6);
+					customers->pos.Set(0, 19, customers->pos.z);
+					customers->vel.Set(10, 0, 0);
+					customer->SetEnterState();
+					LimitCustomers++;
 				}
 			}
-
-			else if (EState == ENTER_FALSE)
-			{
-				customers->vel.Set(CustomerSpeed, 0, 0);
-			}
-			LimitCustomers++;
 		}
 	}
 
 	for (std::vector<GameObject *>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject *go = (GameObject *)*it;
-
+		Customer* customer = dynamic_cast<Customer*>(go);
+		//Cashier* cashier = dynamic_cast<Cashier*>(go);
 		if (go->active)
 		{
-			// Makes objects move
-			//go->pos += go->vel * dt;
-			go->pos += CustomerSpeed * dt;
-
-			// Render customer false if out of screen
 			if (go->type == GameObject::GO_CUSTOMER)
 			{
+				// Makes objects move
+				go->pos += go->vel * dt;
+				std::cout << go->pos.x << ", " << go->pos.y << std::endl;
+				if (customer->isEnter())
+				{
+					if (go->pos.x > 70)
+					{
+						go->vel.Set(0, 10, 0);
+						if (go->pos.y > 60)
+						{
+							customer->SetRequestState();
+						}
+					}
+				}
+
+				if (customer->isRequest())
+				{
+					if (RandomIndex <= Iprobability) // from 0 to 40
+					{
+						bubblegum.no_item -= 1;
+						currency += 40;
+					}
+					else if (RandomIndex >= Iprobability && RandomIndex <= 70) // 40 to 70
+					{
+						water.no_item -= 1;
+						currency += 10;
+					}
+					else if (RandomIndex >= 70 && RandomIndex <= 100) // 69 to 100
+					{
+						chip.no_item -= 1;
+						currency += 30;
+					}
+
+					if (bubblegum.no_item < 0 || water.no_item < 0 || chip.no_item < 0)
+					{
+						customer->SetLeaveState();
+					}
+
+					customer->SetLeaveState();
+				}
+
+				if (customer->isLeave())
+				{
+					go->vel.Set(0, -10, 0);
+					if (go->pos.y < 19)
+					{
+						go->vel.Set(10, 0, 0);
+					}
+				}
+
+				// Render customer false if out of screen
 				if (go->pos.x > m_worldWidth)
 				{
 					go->active = false;
 					LimitCustomers--;
 				}
+
+				if (go->pos.y < 17)
+				{
+					go->active = false;
+					LimitCustomers--;
+				}
 			}
+
+			//if (GameObject::GO_CASHIER)
+			//{
+				//if(cashier->isGreet())
+				//{
+					//if(customer->isFemale())
+					//{
+						//cashier->SetGreetFemale();
+						//cashier->isFemale();
+						//femaletext = true;
+					//}
+
+					//if(customer->isMale())
+					//{
+						//cashier->SetGreetMale();
+						//cashier->isMale();
+						//maletext = true;
+					//}
+				//}
+			//}
 		}
 	}
 
 	//update the rotation of the clock hand
-	clock_rotate_counter +=1;
+	clock_rotate_counter += 1;
 
 	if (clock_rotate_counter > 60)
 	{
 		clock_rotate -= 360 / 12;
 		clock_rotate_counter = 0;
 	}
-	
+
 	//reset the clock, increase no. of days by 1
 	if (clock_rotate < -360)
 	{
 		clock_rotate = 0;
 		day.no_Days++;
 	}
-		
 
 	//item limit max. 10
-	
+
 	//bubblegum
 	if (bubblegum.no_item == 10)
 		bubblegum.max = true;
@@ -367,8 +308,8 @@ void SceneAI::Update(double dt)
 		chip.max = true;
 	else
 		chip.max = false;
-}
 
+}
 void SceneAI::RenderGO(GameObject *go)
 {
 	switch (go->type)
@@ -383,35 +324,32 @@ void SceneAI::RenderGO(GameObject *go)
 		break;
 
 	case GameObject::GO_CUSTOMER:
-		switch (CGender)
+		for (GameObject* go : m_goList)
 		{
-		case GENDER_FEMALE:
-			// RenderMesh = GEO_FEMALE
-			modelStack.PushMatrix();
-			modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-			modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-			RenderMesh(meshList[GEO_FEMALE], false);
-			modelStack.PopMatrix();
-			break;
+			Customer* customer = dynamic_cast<Customer*>(go);
+			if (customer != NULL)
+			{
+				if (customer->isFemale())
+				{
+					// RenderMesh = GEO_FEMALE
+					modelStack.PushMatrix();
+					modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+					modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+					RenderMesh(meshList[GEO_FEMALE], false);
+					modelStack.PopMatrix();
+				}
+				else if (customer->isMale())
+				{
+					// RenderMesh = GEO_MALE
+					modelStack.PushMatrix();
+					modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+					modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+					RenderMesh(meshList[GEO_MALE], false);
+					modelStack.PopMatrix();
+				}
 
-		case GENDER_MALE:
-			// RenderMesh = GEO_MALE
-			modelStack.PushMatrix();
-			modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-			modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-			RenderMesh(meshList[GEO_MALE], false);
-			modelStack.PopMatrix();
-			break;
+			}
 		}
-		break;
-	
-	case GameObject::GO_SUPPLIER:
-		//RenderMesh = GEO_SUPPLIER
-		modelStack.PushMatrix();
-		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
-		RenderMesh(meshList[GEO_SUPPLIER], false);
-		modelStack.PopMatrix();
 		break;
 	}
 }
@@ -451,15 +389,15 @@ void SceneAI::Render()
 	//render the clock base
 	modelStack.PushMatrix();
 	modelStack.Translate(m_worldWidth*0.9f, m_worldHeight*0.078f, -4);
-	modelStack.Scale(15,15,1);
+	modelStack.Scale(15, 15, 1);
 	RenderMesh(meshList[GEO_CLOCK_BASE], false);
 	modelStack.PopMatrix();
 
 	//render the clock hand
 	modelStack.PushMatrix();
 	modelStack.Translate(m_worldWidth*0.9f, m_worldHeight*0.078f, -3);
-	modelStack.Scale(15,15,1);
-	modelStack.Rotate(clock_rotate,0,0,1);
+	modelStack.Scale(15, 15, 1);
+	modelStack.Rotate(clock_rotate, 0, 0, 1);
 	RenderMesh(meshList[GEO_CLOCK_HAND], false);
 	modelStack.PopMatrix();
 
@@ -473,30 +411,38 @@ void SceneAI::Render()
 		}
 	}
 
-
 	//Render cashier
 	RenderGO(m_cashier);
 
+
+	//if(femaletext == true)
+	//{
+		//RenderTextOnScreen(meshList[GEO_TEXT], "Hello Miss.", Color(1, 0, 0), 3, 0, 57);
+	//}
+	//if(maletext == true)
+	//{
+		//RenderTextOnScreen(meshList[GEO_TEXT], "Hello Sir.", Color(1, 0, 0), 3, 0, 57);
+	//}
 	//On screen text
 
 	/*if (m_score == 0 || m_score < 100)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Level 1", Color(1, 0, 0), 3, 0, 57);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Level 1", Color(1, 0, 0), 3, 0, 57);
 	}
 	else if (m_score > 100 && m_score < 300)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Level 2", Color(1, 1, 0), 3, 0, 57);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Level 2", Color(1, 1, 0), 3, 0, 57);
 	}
 	else if (m_score >= 300)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Level 3", Color(1, 0, 1), 3, 0, 57);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Level 3", Color(1, 0, 1), 3, 0, 57);
 	}*/
 
 	//DAYS
 	std::ostringstream N_days;
 	N_days.precision(5);
 	N_days << "Number of Days passed: " << day.no_Days;
-	RenderTextOnScreen(meshList[GEO_TEXT], N_days.str(), Color(1, 1, 1), 2, m_worldWidth * 0.02f,m_worldHeight * 0.57f);
+	RenderTextOnScreen(meshList[GEO_TEXT], N_days.str(), Color(1, 1, 1), 2, m_worldWidth * 0.02f, m_worldHeight * 0.57f);
 
 	//Currency
 	std::ostringstream N_Currency;
@@ -507,7 +453,7 @@ void SceneAI::Render()
 	//Bubblegum
 	std::ostringstream N_Bubblegum;
 	N_Bubblegum.precision(5);
-	N_Bubblegum << "Bubblegum: " << bubblegum.no_item << " /10" ;
+	N_Bubblegum << "Bubblegum: " << bubblegum.no_item << " /10";
 	RenderTextOnScreen(meshList[GEO_TEXT], N_Bubblegum.str(), Color(1, 1, 1), 2, m_worldWidth * 0.02f, m_worldHeight * 0.05f);
 
 	//water
@@ -521,6 +467,10 @@ void SceneAI::Render()
 	N_Chip.precision(5);
 	N_Chip << "Chip: " << chip.no_item << " /10";
 	RenderTextOnScreen(meshList[GEO_TEXT], N_Chip.str(), Color(1, 1, 1), 2, m_worldWidth * 0.02f, m_worldHeight * 0.01f);
+
+	//std::ostringstream EnterState;
+	/EnterState.precision(5);
+	//EnterState << "Enter State: " << 
 
 	//FPS
 	std::ostringstream T_fps;
