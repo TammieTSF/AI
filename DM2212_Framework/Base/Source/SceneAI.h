@@ -15,6 +15,11 @@
 #include "SceneBase.h"
 #include "GameAsset\Customer.h"
 #include "GameAsset\Cashier.h"
+#include "GameAsset\Supplier.h"
+
+
+using std::string;
+
 
 class SceneAI : public SceneBase
 {
@@ -45,8 +50,12 @@ public:
 
 	GameObject* FetchGO();
 	Customer* FetchCustomers();
+	Supplier* FetchSupplier();
 
 	int RandomInteger(int lowerLimit, int upperLimit);
+	std::string itos(const long value);
+
+	bool getWhoEnter(); //get who to enter the shop
 
 protected:
 
@@ -72,9 +81,15 @@ protected:
 	Item water;
 	Item chip;
 
+	//string to print state
+	string customerState;
+	string supplierState;
+
 	int randomBuy_no;
 
 	GameObject *m_cashier;
+	GameObject *m_supplier;
+
 
 	Vector3 m_force;
 
@@ -86,10 +101,12 @@ protected:
 	int Males;			// No. of male customers
 	int TotalCustomers; // Total amount of customers
 	int RandomIndex;	// Randomize Integers
+	int RandomEnter;    //random whether a customer enters or a supplier
 
 	//Probability
 	float Gprobability; // Gender probability
 	float Iprobability; // Item buy probability
+	float Sprobability; //chances of supplier entering the store
 
 	//Render Text
 	//bool maletext; // Render text for males

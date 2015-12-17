@@ -67,3 +67,8 @@ bool Customer::isLeave()
 		return true;
 	return false;
 }
+
+int Customer::getState()
+{
+	return state;
+}

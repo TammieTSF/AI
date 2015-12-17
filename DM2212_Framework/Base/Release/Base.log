@@ -1,0 +1,45 @@
+﻿Build started 14/12/2015 12:00:26 PM.
+     1>Project "C:\Users\vincent's\Desktop\AI\DM2212_Framework\Base\Base.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\vincent's\Desktop\AI\DM2212_Framework\/Common/Source" /I"C:\Users\vincent's\Desktop\AI\DM2212_Framework\/glew/include" /I"C:\Users\vincent's\Desktop\AI\DM2212_Framework\/glfw/include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D _VARIADIC_MAX=10 /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt "..\..\..\..\..\vincent's\Desktop\AI\DM2212_Framework\Base\Source\GameAsset\Supplier.cpp" Source\Application.cpp Source\Camera.cpp Source\GameAsset\Cashier.cpp Source\GameAsset\Customer.cpp Source\GameObject.cpp Source\LoadOBJ.cpp Source\LoadTGA.cpp Source\main.cpp Source\Mesh.cpp Source\MeshBuilder.cpp Source\SceneAI.cpp Source\SceneBase.cpp Source\shader.cpp Source\Utility.cpp
+         Supplier.cpp
+         Application.cpp
+         Camera.cpp
+         Cashier.cpp
+         Customer.cpp
+         GameObject.cpp
+         LoadOBJ.cpp
+         LoadTGA.cpp
+         main.cpp
+         Mesh.cpp
+         MeshBuilder.cpp
+         SceneAI.cpp
+     1>Source\SceneAI.cpp(299): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>Source\SceneAI.cpp(356): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+         SceneBase.cpp
+         shader.cpp
+         Utility.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\vincent's\Desktop\AI\DM2212_Framework\Release\Base.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\Users\vincent's\Desktop\AI\DM2212_Framework\Release" /LIBPATH:"C:\Users\vincent's\Desktop\AI\DM2212_Framework\/glfw/lib-msvc100" /LIBPATH:"C:\Users\vincent's\Desktop\AI\DM2212_Framework\/glew/lib" Common.lib winmm.lib opengl32.lib glu32.lib glew32.lib glfw3.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\vincent's\Desktop\AI\DM2212_Framework\Release\Base.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\vincent's\Desktop\AI\DM2212_Framework\Release\Base.lib" /MACHINE:X86 /SAFESEH Release\Supplier.obj
+         Release\Application.obj
+         Release\Camera.obj
+         Release\Cashier.obj
+         Release\Customer.obj
+         Release\GameObject.obj
+         Release\LoadOBJ.obj
+         Release\LoadTGA.obj
+         Release\main.obj
+         Release\Mesh.obj
+         Release\MeshBuilder.obj
+         Release\SceneAI.obj
+         Release\SceneBase.obj
+         Release\shader.obj
+         Release\Utility.obj
+         Generating code
+         Finished generating code
+         Base.vcxproj -> C:\Users\vincent's\Desktop\AI\DM2212_Framework\Release\Base.exe
+     1>Done Building Project "C:\Users\vincent's\Desktop\AI\DM2212_Framework\Base\Base.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:08.17

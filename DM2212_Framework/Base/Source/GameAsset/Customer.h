@@ -38,5 +38,8 @@ public:
 	bool isEnter();
 	bool isRequest();
 	bool isLeave();
+
+	//Get the state of the customer
+	int getState();
 };
 
